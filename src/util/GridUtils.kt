@@ -31,19 +31,18 @@ fun Point.step(direction: Direction) =
 data class Boundaries(
     val topLeft: Point,
     val bottomRight: Point,
-)
+) {
+    val xRange = (topLeft.x..bottomRight.x)
+    val yRange = (topLeft.y..bottomRight.y)
+}
 
-fun Point.inBounds(boundaries: Boundaries) =
-    x >= boundaries.topLeft.x &&
-        y >= boundaries.topLeft.y &&
-        x <= boundaries.bottomRight.x &&
-        y <= boundaries.bottomRight.y
+fun Point.inBounds(boundaries: Boundaries) = x in boundaries.xRange && y in boundaries.yRange
 
 inline fun Boundaries.loopArea(
     afterLine: () -> Unit = {},
     action: (Point) -> Unit,
-) = (topLeft.y..bottomRight.y).forEach { y ->
-    (topLeft.x..bottomRight.x).forEach { x ->
+) = yRange.forEach { y ->
+    xRange.forEach { x ->
         action(Point(x, y))
     }
     afterLine()

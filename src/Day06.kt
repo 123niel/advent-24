@@ -3,8 +3,8 @@ import util.*
 import kotlin.time.measureTimedValue
 
 data class State(
-    val direction: Direction,
     val guard: Point,
+    val direction: Direction,
 )
 
 fun List<String>.extractPositions(): Pair<Point, Set<Point>> {
@@ -28,46 +28,35 @@ fun main() {
 
     val lines = aoc.input().lines()
 
-//    val lines =
-//        """
-//        ....#.....
-//        .........#
-//        ..........
-//        ..#.......
-//        .......#..
-//        ..........
-//        .#..^.....
-//        ........#.
-//        #.........
-//        ......#...
-//        """.trimIndent().lines()
-
     val (initialGuard, obstructions) = lines.extractPositions()
 
-    val initialState = State(Direction.Up, initialGuard)
+    val initialState = State(initialGuard, Direction.Up)
 
     val boundaries = Boundaries(Point(0, 0), Point(lines.first().lastIndex, lines.lastIndex))
 
+    val part1 =
+        measureTimedValue {
+            part1(initialState, obstructions, boundaries)
+        }
+    println("Part 1: ${part1.value.size} (${part1.duration})")
     measureTimedValue {
-        part1(initialState, obstructions, boundaries)
-    }.println()
-
-    measureTimedValue {
-        part2(initialState, obstructions, boundaries)
-    }.println()
+        part2(initialState, obstructions, part1.value, boundaries)
+    }.also {
+        println("Part 2: ${it.value} (${it.duration})")
+    }
 }
 
 fun part1(
     initialState: State,
     obstructions: Set<Point>,
     boundaries: Boundaries,
-): Int {
+): Set<Point> {
     var state = initialState
     val visited = mutableSetOf<Point>()
     var left = false
 
     while (!left) {
-        val next = state.tick(obstructions)
+        val next = state.move(obstructions)
         if (!next.guard.inBounds(boundaries)) {
             left = true
         } else {
@@ -75,49 +64,45 @@ fun part1(
             state = next
         }
     }
-    return visited.size
+    return visited
 }
 
 fun part2(
     initialState: State,
     obstructions: Set<Point>,
+    route: Set<Point>,
     boundaries: Boundaries,
 ): Int =
-    sequence {
-        boundaries.loopArea { point ->
-            if (point != initialState.guard && point !in obstructions) {
-                yield(obstructions + point)
+    (route - initialState.guard)
+        .map { obstructions + it }
+        .map { modified ->
+            var state = initialState
+            var left = false
+            var loop = false
+            val visited: MutableSet<State> = mutableSetOf()
+
+            while (!left && !loop) {
+                val next = state.move(modified)
+
+                if (visited.contains(next)) {
+                    loop = true
+                } else if (!next.guard.inBounds(boundaries)) {
+                    left = true
+                } else {
+                    visited.add(next)
+                    state = next
+                }
             }
-        }
-    }.map { modified ->
-        var state = initialState
-        var left = false
-        var loop = false
-        val visited = mutableSetOf<Pair<Point, Direction>>()
 
-        while (!left && !loop) {
-            val next = state.tick(modified)
+            loop
+        }.count { it }
 
-            if (!next.guard.inBounds(boundaries)) {
-                left = true
-            } else if (next.guard to next.direction in visited) {
-                loop = true
-            } else {
-                visited.add(next.guard to next.direction)
-                state = next
-            }
-        }
-
-        loop
-    }.filter { it }
-        .count()
-
-private fun State.tick(obstructions: Set<Point>): State {
+private fun State.move(obstructions: Set<Point>): State {
     val next = guard.step(direction)
     val willTurn = next.step(direction) in obstructions
     val nextDirection = if (willTurn) direction.turnRight() else direction
 
-    return State(nextDirection, next)
+    return State(next, nextDirection)
 }
 
 fun State.printState(
