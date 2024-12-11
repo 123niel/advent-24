@@ -99,8 +99,12 @@ fun part2(
 
 private fun State.move(obstructions: Set<Point>): State {
     val next = guard.step(direction)
-    val willTurn = next.step(direction) in obstructions
-    val nextDirection = if (willTurn) direction.turnRight() else direction
+
+    var nextDirection = direction
+
+    while (next.step(nextDirection) in obstructions) {
+        nextDirection = nextDirection.turnRight()
+    }
 
     return State(next, nextDirection)
 }
