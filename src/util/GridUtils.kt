@@ -20,6 +20,9 @@ data class Point(
     val y: Int,
 )
 
+operator fun List<String>.get(point: Point) = this[point.y][point.x]
+operator fun List<String>.get(x: Int, y: Int) = this[y][x]
+
 fun Point.step(direction: Direction) =
     when (direction) {
         Direction.Up -> Point(x, y - 1)
