@@ -1,5 +1,12 @@
+package aoc
+
+import aoc.util.Boundaries
+import aoc.util.Direction
+import aoc.util.Point
+import aoc.util.inBounds
+import aoc.util.step
+import aoc.util.turnRight
 import com.toldoven.aoc.notebook.AocClient
-import util.*
 import kotlin.time.measureTimedValue
 
 data class State(
@@ -72,30 +79,29 @@ fun part2(
     obstructions: Set<Point>,
     route: Set<Point>,
     boundaries: Boundaries,
-): Int =
-    (route - initialState.guard)
-        .map { obstructions + it }
-        .map { modified ->
-            var state = initialState
-            var left = false
-            var loop = false
-            val visited: MutableSet<State> = mutableSetOf()
+): Int = (route - initialState.guard)
+    .map { obstructions + it }
+    .map { modified ->
+        var state = initialState
+        var left = false
+        var loop = false
+        val visited: MutableSet<State> = mutableSetOf()
 
-            while (!left && !loop) {
-                val next = state.move(modified)
+        while (!left && !loop) {
+            val next = state.move(modified)
 
-                if (visited.contains(next)) {
-                    loop = true
-                } else if (!next.guard.inBounds(boundaries)) {
-                    left = true
-                } else {
-                    visited.add(next)
-                    state = next
-                }
+            if (visited.contains(next)) {
+                loop = true
+            } else if (!next.guard.inBounds(boundaries)) {
+                left = true
+            } else {
+                visited.add(next)
+                state = next
             }
+        }
 
-            loop
-        }.count { it }
+        loop
+    }.count { it }
 
 private fun State.move(obstructions: Set<Point>): State {
     val next = guard.step(direction)
@@ -107,30 +113,4 @@ private fun State.move(obstructions: Set<Point>): State {
     }
 
     return State(next, nextDirection)
-}
-
-fun State.printState(
-    visited: Set<Point>,
-    boundaries: Boundaries,
-    obstructions: Set<Point>,
-) {
-    boundaries.loopArea(
-        afterLine = { println() },
-    ) { point ->
-        print(
-            when (point) {
-                in obstructions -> "#"
-                in visited -> "X"
-                guard ->
-                    when (direction) {
-                        Direction.Up -> "^"
-                        Direction.Right -> ">"
-                        Direction.Down -> "v"
-                        Direction.Left -> "<"
-                    }
-
-                else -> "."
-            },
-        )
-    }
 }
