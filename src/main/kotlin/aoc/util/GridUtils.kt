@@ -23,3 +23,7 @@ fun Point.neighbours() = listOf(
     step(Direction.Left),
     step(Direction.Right),
 )
+
+inline fun List<String>.forEach2DIndexed(action: (point: Point, char: Char) -> Unit): Unit = forEachIndexed { y, line ->
+    line.forEachIndexed { x, c -> action(Point(x, y), c) }
+}
