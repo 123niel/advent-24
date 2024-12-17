@@ -1,6 +1,6 @@
 package aoc.util
 
-operator fun List<String>.get(point: Point) = this[point.y][point.x]
+operator fun List<String>.get(point: Point) = this.getOrNull(point.y)?.getOrNull(point.x)
 
 operator fun List<String>.get(x: Int, y: Int) = this[y][x]
 
@@ -15,4 +15,11 @@ data class Boundaries(
 fun List<String>.boundaries() = Boundaries(
     Point(0, 0),
     Point(this.first().lastIndex, this.lastIndex),
+)
+
+fun Point.neighbours() = listOf(
+    step(Direction.Up),
+    step(Direction.Down),
+    step(Direction.Left),
+    step(Direction.Right),
 )

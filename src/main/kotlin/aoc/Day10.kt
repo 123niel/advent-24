@@ -1,9 +1,8 @@
 package aoc
 
-import aoc.util.Direction
 import aoc.util.Point
+import aoc.util.neighbours
 import aoc.util.println
-import aoc.util.step
 import com.toldoven.aoc.notebook.AocClient
 import java.util.ArrayDeque
 import java.util.Queue
@@ -54,11 +53,3 @@ private fun parseInput(input: List<String>) = buildMap {
         }
     }
 }
-
-
-private fun Point.neighbours() = listOf(
-    step(Direction.Up),
-    step(Direction.Down),
-    step(Direction.Left),
-    step(Direction.Right),
-)
