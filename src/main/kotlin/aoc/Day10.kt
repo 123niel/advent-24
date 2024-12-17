@@ -10,7 +10,6 @@ import java.util.Queue
 fun main() {
     val aoc = AocClient.fromEnv().interactiveDay(2024, 10)
 
-
     val input = aoc.input().lines()
 
     val grid = parseInput(input)
@@ -21,8 +20,11 @@ fun main() {
     trailHeads.sumOf { calculateScore(it, grid, distinctPaths = true) }.println()
 }
 
-private fun calculateScore(head: Point, grid: Map<Point, Int>, distinctPaths: Boolean = false): Int {
-
+private fun calculateScore(
+    head: Point,
+    grid: Map<Point, Int>,
+    distinctPaths: Boolean = false,
+): Int {
     val queue: Queue<Point> = ArrayDeque<Point>().apply { add(head) }
 
     val nines: MutableCollection<Point> = if (distinctPaths) {
@@ -44,7 +46,6 @@ private fun calculateScore(head: Point, grid: Map<Point, Int>, distinctPaths: Bo
     }
     return nines.size
 }
-
 
 private fun parseInput(input: List<String>) = buildMap {
     input.forEachIndexed { y, line ->
